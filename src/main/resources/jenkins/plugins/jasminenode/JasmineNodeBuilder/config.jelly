@@ -15,4 +15,14 @@
     <f:textbox name="jasmineNodeBuilder.specsFolder" value="${instance.getSpecsFolder()}" />
   </f:entry>
   
+  <f:entry title="match">
+    <f:textbox name="jasmineNodeBuilder.match" value="${instance.getMatch()}" />
+  </f:entry>
+  
+  <f:entry title="include">
+    <f:textbox name="jasmineNodeBuilder.include" value="${instance.getInclude()}" />
+  </f:entry>
+  
+  
+  
 </j:jelly>

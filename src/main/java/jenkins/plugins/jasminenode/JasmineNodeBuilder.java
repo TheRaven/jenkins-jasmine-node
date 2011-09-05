@@ -9,17 +9,13 @@ import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
-import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class JasmineNodeBuilder extends Builder {
@@ -27,12 +23,16 @@ public class JasmineNodeBuilder extends Builder {
   private boolean useCoffee;
   private boolean useJunit;
   private String specsFolder;
+  private String match;
+  private String include;
 
   @DataBoundConstructor
-  public JasmineNodeBuilder(boolean useCoffee, boolean useJunit, String specsFolder) {
+  public JasmineNodeBuilder(boolean useCoffee, boolean useJunit, String specsFolder, String match, String include) {
     this.useCoffee = useCoffee;
     this.useJunit = useJunit;
     this.specsFolder = specsFolder;
+    this.match = match;
+    this.include = include;
   }
 
   @Override
@@ -46,6 +46,16 @@ public class JasmineNodeBuilder extends Builder {
     if (useJunit) {
       args.add("--junitreport");
     }
+    if (match != null && !match.equals("")) {
+      args.add("--match");
+      args.add(match);
+    }
+
+    if (include != null && !include.equals("")) {
+      args.add("--include");
+      args.add(include);
+    }
+
     if (specsFolder == null || specsFolder.equals("")) {
       specsFolder = "specs";
     }
@@ -59,7 +69,7 @@ public class JasmineNodeBuilder extends Builder {
       Util.displayIOException(e, listener);
       e.printStackTrace(listener.fatalError("command execution failed"));
     } catch (InterruptedException e) {
-
+      e.printStackTrace(listener.fatalError("command execution interrupted"));
     }
     return false;
   }
@@ -91,23 +101,6 @@ public class JasmineNodeBuilder extends Builder {
      * If you don't want fields to be persisted, use <tt>transient</tt>.
      */
 
-    /**
-     * Performs on-the-fly validation of the form field 'name'.
-     * 
-     * @param value
-     *          This parameter receives the value that the user has typed.
-     * @return Indicates the outcome of the validation. This is sent to the
-     *         browser.
-     */
-    public FormValidation doCheckName(@QueryParameter String value) throws IOException, ServletException {
-      /*
-       * if (value.length() == 0) return
-       * FormValidation.error("Please set a name"); if (value.length() < 4)
-       * return FormValidation.warning("Isn't the name too short?");
-       */
-      return FormValidation.ok();
-    }
-
     public boolean isApplicable(Class<? extends AbstractProject> aClass) {
       // Indicates that this builder can be used with all kinds of project
       // types
@@ -118,7 +111,7 @@ public class JasmineNodeBuilder extends Builder {
      * This human readable name is used in the configuration screen.
      */
     public String getDisplayName() {
-      return "run jasmine specs using jasmine node";
+      return "run jasmine specs using jasmine-node";
     }
 
     @Override
@@ -145,6 +138,14 @@ public class JasmineNodeBuilder extends Builder {
 
   public String getSpecsFolder() {
     return specsFolder;
+  }
+
+  public String getMatch() {
+    return match;
+  }
+
+  public String getInclude() {
+    return include;
   }
 
 }
