@@ -9,13 +9,16 @@ import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
+import hudson.util.FormValidation;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class JasmineNodeBuilder extends Builder {
@@ -41,7 +44,14 @@ public class JasmineNodeBuilder extends Builder {
   public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
     ArgumentListBuilder args = new ArgumentListBuilder();
 
-    args.add("jasmine-node");
+    DescriptorImpl descriptor = getDescriptor();
+    String jasmineNodeExec = "jasmine-node";
+
+    if (descriptor.getApplicationExecPath() != null && !descriptor.getApplicationExecPath().equals("")) {
+      jasmineNodeExec = descriptor.getApplicationExecPath();
+    }
+    args.add(jasmineNodeExec);
+    args.add("--noColor");
     if (useCoffee) {
       args.add("--coffee");
     }
@@ -98,6 +108,8 @@ public class JasmineNodeBuilder extends Builder {
   // point.
   public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
+    private String applicationExecPath;
+
     /**
      * To persist global configuration information, simply store it in a field
      * and call save().
@@ -119,15 +131,25 @@ public class JasmineNodeBuilder extends Builder {
       return "run jasmine specs using jasmine-node";
     }
 
+    public String getApplicationExecPath() {
+      return applicationExecPath;
+    }
+
+    public FormValidation doCheckApplicationExecPath(@QueryParameter String value) {
+      FormValidation validation = null;
+      File file = new File(value);
+
+      if (file.exists()) {
+        validation = FormValidation.ok();
+      } else {
+        validation = FormValidation.error("jasmine-node executable doesn't exist");
+      }
+      return validation;
+    }
+
     @Override
     public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-      // To persist global configuration information,
-      // set that to properties and call save().
-
-      // ^Can also use req.bindJSON(this, formData);
-      // (easier when there are many fields; need set* methods for this,
-      // like setUseFrench)
-
+      applicationExecPath = req.getParameter("applicationExecPath");
       save();
       return super.configure(req, formData);
     }

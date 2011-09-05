@@ -13,6 +13,9 @@
   -->
   <f:section title="Jasmine-Node Builder">
     
-
+    <f:entry title="path to jasmine-node" field="applicationExecPath" description="The path to the jasmine-node command. defaults to: jasmine-node">
+        <f:textbox name="applicationExecPath" default="/usr/local/bin/jasmine-node" value="${descriptor.getApplicationExecPath()}" />
+    </f:entry>
+  
   </f:section>
 </j:jelly>
