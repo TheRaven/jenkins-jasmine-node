@@ -24,106 +24,127 @@ import org.kohsuke.stapler.StaplerRequest;
 
 public class JasmineNodeBuilder extends Builder {
 
+  private boolean useCoffee;
+  private boolean useJunit;
+  private String specsFolder;
 
-	@DataBoundConstructor
-	public JasmineNodeBuilder() {
-		
-	}
-	
+  @DataBoundConstructor
+  public JasmineNodeBuilder(boolean useCoffee, boolean useJunit, String specsFolder) {
+    this.useCoffee = useCoffee;
+    this.useJunit = useJunit;
+    this.specsFolder = specsFolder;
+  }
 
-	@Override
-	public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-		ArgumentListBuilder args = new ArgumentListBuilder();
+  @Override
+  public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
+    ArgumentListBuilder args = new ArgumentListBuilder();
 
-		args.add("jasmine-node");
-		args.add("--coffee");
-		args.add("--junitreport");
-		args.add("specs");
-		// Try to execute the command
-		try {
-			Map<String, String> env = build.getEnvironment(listener);
-			int r = launcher.launch().cmds(args).envs(env).stdout(listener)
-					.pwd(build.getModuleRoot()).join();
-			return r == 0;
-		} catch (IOException e) {
-			Util.displayIOException(e, listener);
-			e.printStackTrace(listener.fatalError("command execution failed"));
-		} catch (InterruptedException e) {
+    args.add("jasmine-node");
+    if (useCoffee) {
+      args.add("--coffee");
+    }
+    if (useJunit) {
+      args.add("--junitreport");
+    }
+    if (specsFolder == null || specsFolder.equals("")) {
+      specsFolder = "specs";
+    }
+    args.add(specsFolder);
+    // Try to execute the command
+    try {
+      Map<String, String> env = build.getEnvironment(listener);
+      int r = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(build.getModuleRoot()).join();
+      return r == 0;
+    } catch (IOException e) {
+      Util.displayIOException(e, listener);
+      e.printStackTrace(listener.fatalError("command execution failed"));
+    } catch (InterruptedException e) {
 
-		}
-		return false;
-	}
+    }
+    return false;
+  }
 
-	@Override
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl) super.getDescriptor();
-	}
+  @Override
+  public DescriptorImpl getDescriptor() {
+    return (DescriptorImpl) super.getDescriptor();
+  }
 
-	/**
-	 * Descriptor for {@link JasmineNodeBuilder}. Used as a singleton. The class
-	 * is marked as public so that it can be accessed from views.
-	 * 
-	 * <p>
-	 * See
-	 * <tt>src/main/resources/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
-	 * for the actual HTML fragment for the configuration screen.
-	 */
-	@Extension
-	// This indicates to Jenkins that this is an implementation of an extension
-	// point.
-	public static final class DescriptorImpl extends
-			BuildStepDescriptor<Builder> {
-		/**
-		 * To persist global configuration information, simply store it in a
-		 * field and call save().
-		 * 
-		 * <p>
-		 * If you don't want fields to be persisted, use <tt>transient</tt>.
-		 */
-		
+  /**
+   * Descriptor for {@link JasmineNodeBuilder}. Used as a singleton. The class
+   * is marked as public so that it can be accessed from views.
+   * 
+   * <p>
+   * See
+   * <tt>src/main/resources/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
+   * for the actual HTML fragment for the configuration screen.
+   */
+  @Extension
+  // This indicates to Jenkins that this is an implementation of an extension
+  // point.
+  public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
-		/**
-		 * Performs on-the-fly validation of the form field 'name'.
-		 * 
-		 * @param value
-		 *            This parameter receives the value that the user has typed.
-		 * @return Indicates the outcome of the validation. This is sent to the
-		 *         browser.
-		 */
-		public FormValidation doCheckName(@QueryParameter String value)
-				throws IOException, ServletException {
-		/*	if (value.length() == 0)
-				return FormValidation.error("Please set a name");
-			if (value.length() < 4)
-				return FormValidation.warning("Isn't the name too short?"); */
-			return FormValidation.ok();
-		}
+    /**
+     * To persist global configuration information, simply store it in a field
+     * and call save().
+     * 
+     * <p>
+     * If you don't want fields to be persisted, use <tt>transient</tt>.
+     */
 
-		public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-			// Indicates that this builder can be used with all kinds of project
-			// types
-			return true;
-		}
+    /**
+     * Performs on-the-fly validation of the form field 'name'.
+     * 
+     * @param value
+     *          This parameter receives the value that the user has typed.
+     * @return Indicates the outcome of the validation. This is sent to the
+     *         browser.
+     */
+    public FormValidation doCheckName(@QueryParameter String value) throws IOException, ServletException {
+      /*
+       * if (value.length() == 0) return
+       * FormValidation.error("Please set a name"); if (value.length() < 4)
+       * return FormValidation.warning("Isn't the name too short?");
+       */
+      return FormValidation.ok();
+    }
 
-		/**
-		 * This human readable name is used in the configuration screen.
-		 */
-		public String getDisplayName() {
-			return "run test using jasmine node";
-		}
+    public boolean isApplicable(Class<? extends AbstractProject> aClass) {
+      // Indicates that this builder can be used with all kinds of project
+      // types
+      return true;
+    }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject formData)
-				throws FormException {
-			// To persist global configuration information,
-			// set that to properties and call save().
-			//useFrench = formData.getBoolean("useFrench");
-			// ^Can also use req.bindJSON(this, formData);
-			// (easier when there are many fields; need set* methods for this,
-			// like setUseFrench)
-			save();
-			return super.configure(req, formData);
-		}
+    /**
+     * This human readable name is used in the configuration screen.
+     */
+    public String getDisplayName() {
+      return "run jasmine specs using jasmine node";
+    }
 
-	}
+    @Override
+    public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+      // To persist global configuration information,
+      // set that to properties and call save().
+
+      // ^Can also use req.bindJSON(this, formData);
+      // (easier when there are many fields; need set* methods for this,
+      // like setUseFrench)
+
+      save();
+      return super.configure(req, formData);
+    }
+  }
+
+  public boolean useCoffee() {
+    return useCoffee;
+  }
+
+  public boolean useJunit() {
+    return useJunit;
+  }
+
+  public String getSpecsFolder() {
+    return specsFolder;
+  }
+
 }

@@ -1,0 +1,18 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!--
+    This jelly script is used for per-project configuration.
+
+    See global.jelly for a general discussion about jelly script.
+  -->
+
+  <f:entry title="use coffeescript to run specs">
+    <f:checkbox name="jasmineNodeBuilder.useCoffee" checked="${instance.useCoffee()}" />
+  </f:entry>
+  <f:entry title="export results to junit xml">
+    <f:checkbox name="jasmineNodeBuilder.useJunit" checked="${instance.useJunit()}" />
+  </f:entry>
+  <f:entry title="specs folder">
+    <f:textbox name="jasmineNodeBuilder.specsFolder" value="${instance.getSpecsFolder()}" />
+  </f:entry>
+  
+</j:jelly>
