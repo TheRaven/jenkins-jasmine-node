@@ -22,17 +22,19 @@ public class JasmineNodeBuilder extends Builder {
 
   private boolean useCoffee;
   private boolean useJunit;
+  private boolean verbose;
   private String specsFolder;
   private String match;
   private String include;
 
   @DataBoundConstructor
-  public JasmineNodeBuilder(boolean useCoffee, boolean useJunit, String specsFolder, String match, String include) {
+  public JasmineNodeBuilder(boolean useCoffee, boolean useJunit, boolean verbose, String specsFolder, String match, String include) {
     this.useCoffee = useCoffee;
     this.useJunit = useJunit;
     this.specsFolder = specsFolder;
     this.match = match;
     this.include = include;
+    this.verbose = verbose;
   }
 
   @Override
@@ -45,6 +47,9 @@ public class JasmineNodeBuilder extends Builder {
     }
     if (useJunit) {
       args.add("--junitreport");
+    }
+    if (verbose) {
+      args.add("--verbose");
     }
     if (match != null && !match.equals("")) {
       args.add("--match");
@@ -134,6 +139,10 @@ public class JasmineNodeBuilder extends Builder {
 
   public boolean useJunit() {
     return useJunit;
+  }
+
+  public boolean verbose() {
+    return verbose;
   }
 
   public String getSpecsFolder() {

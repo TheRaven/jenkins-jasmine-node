@@ -5,21 +5,26 @@
     See global.jelly for a general discussion about jelly script.
   -->
 
-  <f:entry title="use coffeescript to run specs">
+  <f:entry title="coffeescript" description="load coffee-script which allows execution .coffee files">
     <f:checkbox name="jasmineNodeBuilder.useCoffee" checked="${instance.useCoffee()}" />
   </f:entry>
-  <f:entry title="export results to junit xml">
+  <f:entry title="junit output" description="export tests results as junitreport xml format">
     <f:checkbox name="jasmineNodeBuilder.useJunit" checked="${instance.useJunit()}" />
   </f:entry>
-  <f:entry title="specs folder">
+  
+  <f:entry title="verbose" description="print extra information per each test run">
+    <f:checkbox name="jasmineNodeBuilder.verbose" checked="${instance.verbose()}" />
+  </f:entry>
+  
+  <f:entry title="specs folder" description="specify a spec folder. defaults to specs.">
     <f:textbox name="jasmineNodeBuilder.specsFolder" value="${instance.getSpecsFolder()}" />
   </f:entry>
   
-  <f:entry title="match">
+  <f:entry title="match" description="load only specs matching given regexp">
     <f:textbox name="jasmineNodeBuilder.match" value="${instance.getMatch()}" />
   </f:entry>
   
-  <f:entry title="include">
+  <f:entry title="include" description="add given directory to node include paths">
     <f:textbox name="jasmineNodeBuilder.include" value="${instance.getInclude()}" />
   </f:entry>
   
